@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Estimator Rundown Hari-H MUA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#1B0F1F; --panel:#251320; --line:#3E2438;
+    --gold:#FFC857; --magenta:#FF4D8D; --text:#F5EDE9;
+    --text-muted:#B8A2AF; --wa:#25D366;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; padding:20px 16px 60px;
+    background:var(--bg); color:var(--text);
+    font-family:'Plus Jakarta Sans', sans-serif;
+    display:flex; justify-content:center;
+  }
+  .app{width:100%; max-width:440px;}
+  h1{
+    font-family:'Playfair Display', serif; font-style:italic;
+    color:var(--gold); text-align:center; font-size:1.8rem; margin:0 0 4px;
+  }
+  .tagline{text-align:center; color:var(--text-muted); font-size:0.82rem; margin-bottom:20px;}
+  
+  .card{
+    background:var(--panel); border:1px solid var(--line);
+    border-radius:16px; padding:18px; margin-bottom:14px;
+  }
+  .card h2{font-size:0.95rem; color:var(--gold); margin:0 0 12px; display:flex; align-items:center; gap:6px;}
+  
+  .grid-2{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  .field{margin-bottom:12px;}
+  .field label{display:block; font-size:0.78rem; font-weight:600; margin-bottom:4px; color:var(--text);}
+  
+  input, select{
+    width:100%; background:var(--bg); border:1px solid var(--line);
+    color:var(--text); padding:10px; border-radius:10px; font-size:0.88rem; outline:none;
+    font-family:'Plus Jakarta Sans', sans-serif;
+  }
+  input:focus, select:focus{border-color:var(--magenta);}
+
+  /* RESULT BOX */
+  .result-card{
+    background:linear-gradient(145deg, #2E1529, #1B0F1F);
+    border:1px solid var(--gold); border-radius:16px; padding:20px; text-align:center; margin-top:20px;
+  }
+  .time-badge{
+    font-size:2.2rem; font-weight:800; color:var(--gold);
+    font-family:'Playfair Display', serif; margin:8px 0; text-shadow:0 0 10px rgba(255,200,87,0.2);
+  }
+  .sub-time{font-size:0.82rem; color:var(--magenta); font-weight:600;}
+
+  .timeline-list{text-align:left; margin-top:16px; border-top:1px dashed var(--line); padding-top:14px;}
+  .timeline-item{display:flex; gap:10px; font-size:0.82rem; margin-bottom:10px; align-items:flex-start;}
+  .timeline-time{font-weight:700; color:var(--gold); min-width:85px;}
+  .timeline-desc{color:var(--text); flex:1;}
+
+  .btn-wa{
+    width:100%; padding:13px; border-radius:12px; border:none;
+    background:var(--wa); color:#fff; font-weight:700; font-size:0.88rem;
+    cursor:pointer; margin-top:14px; display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--gold);color:var(--bg);font-size:12px;font-weight:700;padding:10px 20px;border-radius:99px;opacity:0;transition:0.3s;pointer-events:none;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <h1>Rundown Estimator</h1>
+  <p class="tagline">Hitung Mundur Jam Standby & Rias Hari-H MUA</p>
+
+  <div class="card">
+    <h2>⏰ Target Waktu Acara</h2>
+    <div class="field">
+      <label>Target Jam Ready / Akad / Foto (WIB)</label>
+      <input type="time" id="targetTime" value="08:00" onchange="calculateRundown()">
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>👰 Rias Pengantin Utama (CPW)</h2>
+    <div class="field">
+      <label>Estimasi Durasi Makeup & Hairdo CPW</label>
+      <select id="cpwDuration" onchange="calculateRundown()">
+        <option value="120" selected>2 Jam (Standar Bold/Siger)</option>
+        <option value="150">2.5 Jam (Complex / Adat)</option>
+        <option value="90">1.5 Jam (Soft / Modern)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>👥 Rias Keluarga & Panitia</h2>
+    <div class="grid-2">
+      <div class="field">
+        <label>Jumlah Ibu (Orang)</label>
+        <input type="number" id="countIbu" value="2" min="0" oninput="calculateRundown()">
+      </div>
+      <div class="field">
+        <label>Durasi/Ibu</label>
+        <select id="durIbu" onchange="calculateRundown()">
+          <option value="45" selected>45 Menit</option>
+          <option value="30">30 Menit</option>
+          <option value="60">60 Menit</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="field">
+        <label>Bridesmaid/Panitia</label>
+        <input type="number" id="countBridesmaid" value="3" min="0" oninput="calculateRundown()">
+      </div>
+      <div class="field">
+        <label>Durasi/Orang</label>
+        <select id="durBridesmaid" onchange="calculateRundown()">
+          <option value="30" selected>30 Menit</option>
+          <option value="20">20 Menit</option>
+          <option value="45">45 Menit</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🧰 Tim MUA & Buffer Waktu</h2>
+    <div class="grid-2">
+      <div class="field">
+        <label>Jumlah Tim MUA</label>
+        <select id="teamCount" onchange="calculateRundown()">
+          <option value="1">Solo MUA (Sendiri)</option>
+          <option value="2" selected>MUA + 1 Asisten</option>
+          <option value="3">MUA + 2 Asisten</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Buffer/Persiapan Alat</label>
+        <select id="bufferTime" onchange="calculateRundown()">
+          <option value="30" selected>30 Menit</option>
+          <option value="45">45 Menit</option>
+          <option value="15">15 Menit</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- HASIL HITUNG MUNDUR -->
+  <div class="result-card">
+    <div style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px;">MUA & Tim Harus Standby Jam:</div>
+    <div class="time-badge" id="startTimeBadge">03:30 WIB</div>
+    <div class="sub-time" id="totalDurationText">Total Alokasi Waktu: 4 Jam 30 Menit</div>
+
+    <div class="timeline-list" id="timelineOutput"></div>
+
+    <button class="btn-wa" onclick="copyRundownWA()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      Salin Jadwal & Kirim ke WA WO / Klien
+    </button>
+  </div>
+</div>
+
+<div class="toast" id="toast">Teks Rundown Berhasil Disalin!</div>
+
+<script>
+function formatTime(date) {
+  let h = String(date.getHours()).padStart(2, '0');
+  let m = String(date.getMinutes()).padStart(2, '0');
+  return `${h}:${m}`;
+}
+
+function calculateRundown() {
+  const targetTimeVal = document.getElementById('targetTime').value;
+  if (!targetTimeVal) return;
+
+  const [tHours, tMins] = targetTimeVal.split(':').map(Number);
+  let readyDate = new Date();
+  readyDate.setHours(tHours, tMins, 0, 0);
+
+  const cpwDur = parseInt(document.getElementById('cpwDuration').value);
+  const countIbu = parseInt(document.getElementById('countIbu').value) || 0;
+  const durIbu = parseInt(document.getElementById('durIbu').value);
+  const countBM = parseInt(document.getElementById('countBridesmaid').value) || 0;
+  const durBM = parseInt(document.getElementById('durBridesmaid').value);
+  const team = parseInt(document.getElementById('teamCount').value);
+  const buffer = parseInt(document.getElementById('bufferTime').value);
+
+  // Kalkulasi Parallel Kerja Tim
+  let totalMenitKeluarga = (countIbu * durIbu) + (countBM * durBM);
+  let menitKeluargaReal = Math.ceil(totalMenitKeluarga / team);
+
+  let totalMenitDibutuhkan = buffer + cpwDur + menitKeluargaReal;
+
+  // Hitung Jam Standby MUA
+  let startDate = new Date(readyDate.getTime() - (totalMenitDibutuhkan * 60000));
+
+  // Tampilkan Jam Standby
+  document.getElementById('startTimeBadge').textContent = formatTime(startDate) + " WIB";
+  
+  let hoursPart = Math.floor(totalMenitDibutuhkan / 60);
+  let minsPart = totalMenitDibutuhkan % 60;
+  document.getElementById('totalDurationText').textContent = `Total Durasi Persiapan: ${hoursPart} Jam ${minsPart} Menit`;
+
+  // TIMELINE STEP BY STEP
+  let curr = new Date(startDate.getTime());
+  let timelineHTML = "";
+  
+  // Step 1: Prep
+  let tPrepStart = formatTime(curr);
+  curr.setMinutes(curr.getMinutes() + buffer);
+  timelineHTML += `<div class="timeline-item"><span class="timeline-time">${tPrepStart} - ${formatTime(curr)}</span><span class="timeline-desc">Tim MUA Standby, Atur Meja Rias & Skin Prep Awal</span></div>`;
+
+  // Step 2: Rias CPW
+  let tCpwStart = formatTime(curr);
+  curr.setMinutes(curr.getMinutes() + cpwDur);
+  timelineHTML += `<div class="timeline-item"><span class="timeline-time">${tCpwStart} - ${formatTime(curr)}</span><span class="timeline-desc">Makeup & Hairdo / Hijab Utama Pengantin (CPW)</span></div>`;
+
+  // Step 3: Rias Keluarga / BM (Paralel)
+  if (totalMenitKeluarga > 0) {
+    let tKelStart = formatTime(curr);
+    curr.setMinutes(curr.getMinutes() + menitKeluargaReal);
+    timelineHTML += `<div class="timeline-item"><span class="timeline-time">${tKelStart} - ${formatTime(curr)}</span><span class="timeline-desc">Rias ${countIbu} Ibu & ${countBM} Bridesmaid / Keluarga (${team > 1 ? 'Paralel Tim' : 'MUA Solo'})</span></div>`;
+  }
+
+  // Step 4: Final Touch & Ready
+  timelineHTML += `<div class="timeline-item"><span class="timeline-time">${formatTime(readyDate)} WIB</span><span class="timeline-desc"><b>READY!</b> Pengantin Siap Akad / Photo Session 📸</span></div>`;
+
+  document.getElementById('timelineOutput').innerHTML = timelineHTML;
+}
+
+function copyRundownWA() {
+  const standby = document.getElementById('startTimeBadge').textContent;
+  const ready = document.getElementById('targetTime').value;
+  
+  let text = `✨ *ESTIMASI RUNDOWN RIAS HARI-H* ✨\n-----------------------------------\n⏰ *Target Ready:* ${ready} WIB\n🚗 *MUA & Tim Standby:* ${standby}\n-----------------------------------\n\n*Rincian Alokasi Waktu:*\n`;
+
+  const items = document.querySelectorAll('.timeline-item');
+  items.forEach(item => {
+    let time = item.querySelector('.timeline-time').innerText;
+    let desc = item.querySelector('.timeline-desc').innerText;
+    text += `• *${time}* : ${desc}\n`;
+  });
+
+  text += `\n*Catatan:* Mohon pengantin & keluarga sudah membersihkan wajah dan tidak memakai skincare berminyak sebelum MUA tiba. Terima kasih! 🥰✨`;
+
+  navigator.clipboard.writeText(text).then(() => {
+    let t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  });
+}
+
+// Inisialisasi awal
+calculateRundown();
+</script>
+</body>
+</html>
