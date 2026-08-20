@@ -58,11 +58,22 @@
   .timeline-item{display:flex; gap:10px; font-size:0.82rem; margin-bottom:10px; align-items:flex-start;}
   .timeline-time{font-weight:700; color:var(--gold); min-width:85px;}
   .timeline-desc{color:var(--text); flex:1;}
+    
+  <!-- TAMBAHKAN KOTAK INPUT INI DI DALAM RESULT CARD SEBELUM TOMBOL -->
+<div class="field" style="margin-top: 14px; text-align: left;">
+  <label>No. WhatsApp WO / Klien (Penerima)</label>
+  <input type="text" id="targetWa" placeholder="Contoh: 081234567890">
+</div>
 
-  .btn-wa{
-    width:100%; padding:13px; border-radius:12px; border:none;
-    background:var(--wa); color:#fff; font-weight:700; font-size:0.88rem;
-    cursor:pointer; margin-top:14px; display:flex; align-items:center; justify-content:center; gap:8px;
+<!-- GANTI TOMBOL LAMA DENGAN DUA TOMBOL INI -->
+<div class="grid-2" style="margin-top:10px;">
+  <button class="btn-wa" onclick="sendRundownWA()">
+    📲 Kirim Langsung ke WA
+  </button>
+  <button class="btn-wa" style="background:var(--panel); border:1px solid var(--line); color:var(--text);" onclick="copyRundownWA()">
+    📋 Salin Teks
+  </button>
+</div>
   }
   .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--gold);color:var(--bg);font-size:12px;font-weight:700;padding:10px 20px;border-radius:99px;opacity:0;transition:0.3s;pointer-events:none;}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
@@ -231,7 +242,7 @@ function calculateRundown() {
   document.getElementById('timelineOutput').innerHTML = timelineHTML;
 }
 
-function copyRundownWA() {
+  function generateRundownText() {
   const standby = document.getElementById('startTimeBadge').textContent;
   const ready = document.getElementById('targetTime').value;
   
@@ -245,14 +256,35 @@ function copyRundownWA() {
   });
 
   text += `\n*Catatan:* Mohon pengantin & keluarga sudah membersihkan wajah dan tidak memakai skincare berminyak sebelum MUA tiba. Terima kasih! 🥰✨`;
+  return text;
+}
 
+// FUNGSI 1: Kirim Langsung ke WA Penerima
+function sendRundownWA() {
+  let noWa = document.getElementById('targetWa').value.replace(/\D/g, '');
+  if (!noWa) {
+    alert("Silakan isi nomor WhatsApp WO / Klien terlebih dahulu!");
+    return;
+  }
+  if (noWa.startsWith('0')) {
+    noWa = '62' + noWa.substring(1);
+  }
+
+  const text = generateRundownText();
+  const url = `https://api.whatsapp.com/send?phone=${noWa}&text=${encodeURIComponent(text)}`;
+  window.open(url, '_blank');
+}
+
+// FUNGSI 2: Salin Teks (Opsional jika ingin kirim manual ke Grup)
+function copyRundownWA() {
+  const text = generateRundownText();
   navigator.clipboard.writeText(text).then(() => {
     let t = document.getElementById('toast');
     t.classList.add('show');
     setTimeout(() => t.classList.remove('show'), 2500);
   });
 }
-
+  
 // Inisialisasi awal
 calculateRundown();
 </script>
