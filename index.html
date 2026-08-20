@@ -262,10 +262,17 @@ function generateRundownText() {
   return text;
 }
 
+function showToast(msg) {
+  let t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
 function sendRundownWA() {
   let noWa = document.getElementById('targetWa').value.replace(/\D/g, '');
   if (!noWa) {
-    alert("Silakan isi nomor WhatsApp WO / Klien terlebih dahulu!");
+    showToast("⚠️ Isi nomor WhatsApp WO / Klien terlebih dahulu!");
     return;
   }
   if (noWa.startsWith('0')) {
@@ -274,9 +281,11 @@ function sendRundownWA() {
 
   const text = generateRundownText();
   const url = `https://api.whatsapp.com/send?phone=${noWa}&text=${encodeURIComponent(text)}`;
+  
+  // Buka WhatsApp & Tampilkan Notifikasi Toast Kustom (Tanpa Tulisan GitHub)
   window.open(url, '_blank');
+  showToast("🚀 Berhasil! Mengalihkan ke WhatsApp...");
 }
-
 function copyRundownWA() {
   const text = generateRundownText();
   navigator.clipboard.writeText(text).then(() => {
