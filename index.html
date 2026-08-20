@@ -59,22 +59,14 @@
   .timeline-time{font-weight:700; color:var(--gold); min-width:85px;}
   .timeline-desc{color:var(--text); flex:1;}
     
-  <!-- TAMBAHKAN KOTAK INPUT INI DI DALAM RESULT CARD SEBELUM TOMBOL -->
-<div class="field" style="margin-top: 14px; text-align: left;">
-  <label>No. WhatsApp WO / Klien (Penerima)</label>
-  <input type="text" id="targetWa" placeholder="Contoh: 081234567890">
-</div>
-
-<!-- GANTI TOMBOL LAMA DENGAN DUA TOMBOL INI -->
-<div class="grid-2" style="margin-top:10px;">
-  <button class="btn-wa" onclick="sendRundownWA()">
-    📲 Kirim Langsung ke WA
-  </button>
-  <button class="btn-wa" style="background:var(--panel); border:1px solid var(--line); color:var(--text);" onclick="copyRundownWA()">
-    📋 Salin Teks
-  </button>
-</div>
+  .btn-wa{
+    width:100%; padding:12px; border-radius:12px; border:none;
+    background:var(--wa); color:#fff; font-weight:700; font-size:0.85rem;
+    cursor:pointer; margin-top:8px; display:flex; align-items:center; justify-content:center; gap:6px;
+    transition:0.2s;
   }
+  .btn-wa:hover{ opacity:0.9; }
+
   .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--gold);color:var(--bg);font-size:12px;font-weight:700;padding:10px 20px;border-radius:99px;opacity:0;transition:0.3s;pointer-events:none;}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 </style>
@@ -167,10 +159,21 @@
 
     <div class="timeline-list" id="timelineOutput"></div>
 
-    <button class="btn-wa" onclick="copyRundownWA()">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-      Salin Jadwal & Kirim ke WA WO / Klien
-    </button>
+    <!-- KOTAK INPUT WA PENERIMA -->
+    <div class="field" style="margin-top: 16px; text-align: left;">
+      <label>No. WhatsApp WO / Klien (Penerima)</label>
+      <input type="text" id="targetWa" placeholder="Contoh: 081234567890">
+    </div>
+
+    <!-- TOMBOL AKSI -->
+    <div class="grid-2" style="margin-top:10px;">
+      <button class="btn-wa" onclick="sendRundownWA()">
+        📲 Kirim ke WA
+      </button>
+      <button class="btn-wa" style="background:var(--panel); border:1px solid var(--line); color:var(--text);" onclick="copyRundownWA()">
+        📋 Salin Teks
+      </button>
+    </div>
   </div>
 </div>
 
@@ -242,7 +245,7 @@ function calculateRundown() {
   document.getElementById('timelineOutput').innerHTML = timelineHTML;
 }
 
-  function generateRundownText() {
+function generateRundownText() {
   const standby = document.getElementById('startTimeBadge').textContent;
   const ready = document.getElementById('targetTime').value;
   
@@ -259,7 +262,6 @@ function calculateRundown() {
   return text;
 }
 
-// FUNGSI 1: Kirim Langsung ke WA Penerima
 function sendRundownWA() {
   let noWa = document.getElementById('targetWa').value.replace(/\D/g, '');
   if (!noWa) {
@@ -275,7 +277,6 @@ function sendRundownWA() {
   window.open(url, '_blank');
 }
 
-// FUNGSI 2: Salin Teks (Opsional jika ingin kirim manual ke Grup)
 function copyRundownWA() {
   const text = generateRundownText();
   navigator.clipboard.writeText(text).then(() => {
@@ -284,7 +285,7 @@ function copyRundownWA() {
     setTimeout(() => t.classList.remove('show'), 2500);
   });
 }
-  
+
 // Inisialisasi awal
 calculateRundown();
 </script>
