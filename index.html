@@ -67,7 +67,7 @@
   }
   .btn-wa:hover{ opacity:0.9; }
 
-  .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--gold);color:var(--bg);font-size:12px;font-weight:700;padding:10px 20px;border-radius:99px;opacity:0;transition:0.3s;pointer-events:none;}
+  .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--gold);color:var(--bg);font-size:12px;font-weight:700;padding:10px 20px;border-radius:99px;opacity:0;transition:0.3s;pointer-events:none; z-index:9999;}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 </style>
 </head>
@@ -280,18 +280,19 @@ function sendRundownWA() {
   }
 
   const text = generateRundownText();
-  const url = `https://api.whatsapp.com/send?phone=${noWa}&text=${encodeURIComponent(text)}`;
+  // Menggunakan URL wa.me langsung tanpa meluncurkan window.open agar tidak memicu peringatan browser
+  const url = `https://wa.me/${noWa}?text=${encodeURIComponent(text)}`;
   
-  // Buka WhatsApp & Tampilkan Notifikasi Toast Kustom (Tanpa Tulisan GitHub)
-  window.open(url, '_blank');
-  showToast("🚀 Berhasil! Mengalihkan ke WhatsApp...");
+  showToast("🚀 Mengalihkan ke WhatsApp...");
+  setTimeout(() => {
+    window.location.href = url;
+  }, 300);
 }
+
 function copyRundownWA() {
   const text = generateRundownText();
   navigator.clipboard.writeText(text).then(() => {
-    let t = document.getElementById('toast');
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2500);
+    showToast("📋 Teks Rundown Berhasil Disalin!");
   });
 }
 
